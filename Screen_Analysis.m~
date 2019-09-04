@@ -248,7 +248,7 @@ end
         fprintf(fid,'   3D Peak SCR Left/Right Eye: %3.0f / %3.0f :1 \n',sLS,sRS);
     end
     fclose(fid);
-    
+fprintf('NP9=%d, ssL=%d\n,)
     %% LOAD 9 Points measurements
     if app.NP9==1
         n9=length(P9N);
