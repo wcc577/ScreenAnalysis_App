@@ -7,42 +7,41 @@ function Screen_Uniformity(app)
     n2f=0.291863508; % conversion 1Nits to FL
     avgn=1; %"1" use range averaged for H profile, "0" for NoN (raw data)
     scn=-10; %scan pixel pitch, '0' for NoN, <0 means average; ONLY works when avgn=0;
-    sigma=60;%120(R16)&for Home cinema "it is 60 before" 80(VHG); % sigma of gaussian filter for projector profile remove 60, 30 is too small, but off-axis is 30
+    %app.sigma=60;%120(R16)&for Home cinema "it is 60 before" 80(VHG); % sigma of gaussian filter for projector profile remove 60, 30 is too small, but off-axis is 30
     gau=0; % Data gaussian filtering, min. is 1, '0' for NoN
     roi=1; % Select ROI=1, 0=input data.
     sfig=1; % save figure or not, 1=Yes
 
     fmt=0; % fmt==1, usr uniformity for brightness
-    readF=1; % read file or not 1=Yes
 
     imrot=2; % 0= No, 1=fixed angle, 2=select
 
-    if readF==1
-        Ro=exist('fileDir');
-        if Ro==1;
-            [fileName,fileDir]=uigetfile('*.mat;*.csv','Choose the file you want to process.',fileDir);
-        else
-            [fileName,fileDir]=uigetfile('*.mat;*.csv','Choose the file you want to process.');
-        end
-        ftyp=fileName(end-2:end);
-        switch ftyp
-            case 'mat'
-                load([fileDir fileName]); datas=data;
-            case 'csv'
-                 datas=csvread([fileDir fileName],2,1);
-        end
+    Ro=exist('app.fileDir');
+    if Ro==1
+        fileName=uigetfile(app.fileDir,'*.mat;*.csv','Choose the file you want to process.',fileDir);
     else
-        datas=data(:,:,1);
+        [fileName,app.fileDir]=uigetfile('*.mat;*.csv','Choose the file you want to process.');
     end
-    datas=datas*n2f; %data=data.';
+    ftyp=fileName(end-2:end);
+    switch ftyp
+        case 'mat'
+            load([app.fileDir fileName]); datas=data;
+        case 'csv'
+             datas=csvread([app.fileDir fileName],2,1);
+    end
 
-    if imrot==1; %use secified rotating angle
+    datas=datas*n2f; %data=data.';
+    if exist('app.MSG')==0; nj=1; else, nj=length(app.MSG); end
+    app.MSG{nj+1}= sprintf('\n Analized File: %s %s \n',app.fileDir,fileName);
+ 
+
+    if imrot==1 %use secified rotating angle
         rotAngle=17.82;%16.4;%17.82;
         datas=imrotate(datas,rotAngle);
-    elseif imrot==2; %define rotating angle
+    elseif imrot==2 %define rotating angle
         rotAngle=rotationGUI(datas);
         datas=imrotate(datas,rotAngle);
-        fprintf('Image Rotating Angle is %3.2f degrees \n',rotAngle)
+        app.MSG{nj+2}= sprintf('Image Rotating Angle is %3.2f degrees \n',rotAngle);
     else
         rotAngle=0;
     end
@@ -55,15 +54,7 @@ function Screen_Uniformity(app)
         title('Click the Up-Left and Bottom-Righ points for ROI secect');
         [x,y]=ginput(2); x=round(x); y=round(y);
     else
-        %x=[544;1769]; y=[50;993]; %R97
-        %x=[433;1765]; y=[54;996]; %R16
-        %x=[362;1765]; y=[57;996]; %R150X
-        %x=[270;1500]; y=[479;1004]; %R160
-        %x=[266;1500]; y=[479;1004]; %R160
-        %x=[270;1500]; y=[479;1004]; %On axis
-        %x=[560;1765]; y=[55;995]; %Off axis
         x=[195;1762]; y=[319;1202]; %Enlarge ON-axis
-        %x=[504;1773]; y=[12;1024]; %Enlarge OFF-axis
     end
 
     [m,n]=size(datas);
@@ -72,10 +63,11 @@ function Screen_Uniformity(app)
     if A(3)<1; A(3)=1; end
     if A(2)>m; A(2)=m; end
     if A(4)>n; A(4)=n; end
-    sm=input('Input the seam number[Enter for 0]: ');
-    if isempty(sm)==1; sm=0; end
-    %ROI=[1;1;1927;1148];
-    %ROI=[375;700;1560;1100];  % ROI of [Y1,X1, Y2,X2]
+    
+%     sm=input('Input the seam number[Enter for 0]: ');
+%     if isempty(sm)==1; sm=0; end
+    sm=0;
+    
     datas=datas(A(1):A(2),A(3):A(4));
 
     [m,n]=size(datas);
@@ -85,11 +77,11 @@ function Screen_Uniformity(app)
         datas=imgaussfilt(rawData, gau);
     end
 
-    h=fspecial('gaussian',sigma,sigma);
+    h=fspecial('gaussian',app.sigma,app.sigma);
     %dataFiltered2=imgaussfilt(data,sigma); %edge is not enhanced ng
     dataFiltered=imfilter(datas,h,'replicate','same','conv');
 
-    if fmt==1;
+    if fmt==1
         dataFiltered=dataFiltered/max(max(dataFiltered))*100;
     end
 
@@ -98,7 +90,7 @@ function Screen_Uniformity(app)
     imagesc(dataFiltered); colormap 'jet', hold on
     [C,h]=contour(dataFiltered,'ShowText','on','LineColor',[0.9 0.9 0.9],'LabelSpacing',300); clabel(C,h); hold off
     axis('equal'); title('System Brightness Map')
-    if sfig==1; saveas(gcf,[fileDir fileName(1:end-4) ' System Brightness Map.png']); end
+    if sfig==1; saveas(gcf,[app.fileDir fileName(1:end-4) ' System Brightness Map.png']); end
     %% Uniformity caculation
     data2=datas./dataFiltered;
     data2=data2/mean2(data2);
@@ -110,7 +102,7 @@ function Screen_Uniformity(app)
      [a b]=caxis; caxis([0,b]);
      colormap gray; %colorbar; 
 
-     if avgn==0;
+     if avgn==0
          title('Click on the position for analysis');
          til2=['Raw data analysis']; 
          if scn>0
@@ -142,10 +134,7 @@ function Screen_Uniformity(app)
         A=mean(rawData((center-scn2):scn2:(center+scn2),:),1);
         yl2=[0; max(A)];%yl2=[min(A); max(A)];
      elseif scn==0
-     %else
         A=rawData(center,:); 
-        %A=mean(rawData,1);
-        %A=mean(rawData(B(1):1:B(2),:),1);  %averaged data
         yl2=[0; max(A)];%yl2=[min(A); max(A)];
      end
      plot(A.'); grid, title(til2);
@@ -165,20 +154,8 @@ function Screen_Uniformity(app)
 
      if sm>0
          subplot(2,1,2)
-    % if scn>1
-    %     A=rawData((center-scn):scn:(center+scn),:);
-    %     yl2=[min(A(2,:)) max(A(2,:))];
-    % else
-    %     %A=rawData(center,:);
-    %     %A=mean(rawData,1);
-    %     A=mean(rawData(B(1):1:B(2),:),1);  %averaged data
-    %     yl2=[min(A) max(A)];
-    % end
-     %plot(rawData(center,:)); grid
-     %plot(A.'); grid, title(til2);
-     %xlim([1 n]);
+
        xl2=[px px]; xl2=xl2.';
-       %%%%line(xl2,yl2,'Color','black','LineStyle',':');
 
        for j=1:sm; tstr{j}=['Seam' num2str(j)]; end
        ty=ones(sm,1)*round(yl2(2)-(yl(2)-yl(1))*0.9);
@@ -186,7 +163,7 @@ function Screen_Uniformity(app)
      end
 
      if scn>1; legend('-50 Position','Corss line','+50 Position'); end
-     if sfig==1; saveas(gcf,[fileDir fileName(1:end-4) ' Uniformity Raw Data.png']); end
+     if sfig==1; saveas(gcf,[app.fileDir fileName(1:end-4) ' Uniformity Raw Data.png']); end
 
     %% Analized Figure 
     figure(6)
@@ -202,10 +179,9 @@ function Screen_Uniformity(app)
     end
 
 
-     til=[fileName(1:end-4) ' Enhanced Gaussian filtered Uniformity, Sigma ' num2str(sigma) ' /blur ' num2str(gau) ' /rotAngle ' num2str(rotAngle)];
+     til=[fileName(1:end-4) ' Enhanced Gaussian filtered Uniformity, Sigma ' num2str(app.sigma) ' /blur ' num2str(gau) ' /rotAngle ' num2str(rotAngle)];
      title(til); 
      colormap gray;  line(xl,yl); %colorbar;
-     %[px py]=ginput(sm); px=round(px); py=round(py); yl2=[-10 10];
 
     subplot(2,1,2)
      if scn>1
@@ -213,17 +189,12 @@ function Screen_Uniformity(app)
      elseif scn<0
          scn2=abs(scn);
         A=mean(uniformityGauss((center-scn2):1:(center+scn2),:),1);
-     elseif scn==0
-     %else   
+     elseif scn==0   
         A=uniformityGauss(center,:);
-        %A=mean(uniformityGauss,1);
-        %%A=mean(uniformityGauss(B(1):1:B(2),:),1);  %averaged data
      end
-     %A=uniformityGauss((center-scn):scn:(center+scn),:);
      plot(A.'-1.5); grid, 
      xlim([1 n]); ylim([-5 5]); %ylim([0 15]);
      yticks([-5 -2.5 -1 0 1 2.5 5]); yticklabels({'-5','-2.5','-1 Low','0','+1 Up','2.5','5'});
-     %yticks([0 7.5 10 12.5 15]); yticklabels({'0','7.5','10 Base','12.5','15'});
      yl2=[-5; 5]; title(til2);
 
      if sm>0
@@ -233,8 +204,6 @@ function Screen_Uniformity(app)
      end
 
      if scn>1; legend('-50 Position','Corss line','+50 Position'); end
-     if sfig==1; saveas(gcf,[fileDir fileName(1:end-4) ' Enhanced Gaussian filtered Uniformity.png']); end
-
-     fprintf('\n Completed with %s \n %s \n',fileDir,fileName)
+     if sfig==1; saveas(gcf,[app.fileDir fileName(1:end-4) ' Enhanced Gaussian filtered Uniformity.png']); end
  
 end

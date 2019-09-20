@@ -164,7 +164,7 @@ imagesc(app.FigAxis,B_2D); %hold on
 noF=4;
 if noF>2
     fg2=figure(2); fg2.Position=[1120 120 560 820];
-    subplot(3,1,1)
+    fg21=subplot(3,1,1);
     imagesc(R_Bright); hold on
     sRB=max(max(R_Bright.*ROIsMR)); s=round(sRB,1);
     contour(R_Bright,'ShowText','on','LineColor',[0.9 0.9 0.9],'LabelSpacing',800); %clabel(C,h); 
@@ -172,7 +172,7 @@ if noF>2
         num2str(s) ' FL)'];
     title(til); hold off; axis('equal'); caxis([0 s]);
 
-    subplot(3,1,2)
+    fg22=subplot(3,1,2);
     imagesc(R_SCR); hold on 
     sRS=max(max(R_SCR.*ROIsMR)); s=round(sRS); 
     if sa~=0; s=sa; end %%%% nc level on Right-eye
@@ -180,8 +180,9 @@ if noF>2
     contour(R_SCR,nc,'ShowText','on','LineColor',[0.9 0.9 0.9],'LabelSpacing',800); %clabel(C,h); 
     til2=['Right-Eye 3D SCR of ' app.Auditorium ' (Max. SCR ' num2str(s) ':1)'];
     title(til2); hold off; axis('equal'); caxis([0 s]);
+    %pos=fg22.Position
 
-    subplot(3,1,3)%, title('Cross Peak SCR')
+    fg23=subplot(3,1,3);%, title('Cross Peak SCR')
     [a, b]=max(R_SCR.*ROIsMR,[],2); %a2=smooth(a,0.05,'rloess'); 
     [sRS, c]=max(a); 
     if dotp==1
@@ -192,6 +193,7 @@ if noF>2
     xlim([0 ns]); a=ylim; ylim([0 a(2)]);
     til3=['Right-Eye Peak 3D SCR Crossection of ' app.Auditorium];
     title(til3);
+    fg23.Position=[0.21 0.11 0.61 0.2157];
     %fg2.Position=[1 1 560 820];
     saveas(gcf,[app.fileDir app.Auditorium '-3D Right-Eye SCR.png'])
 
@@ -214,7 +216,7 @@ if noF>2
     til2=['Left-Eye 3D SCR of ' app.Auditorium ' (Max. SCR ' num2str(s) ':1)'];
     title(til2); hold off; axis('equal'); caxis([0 s]);
 
-    subplot(3,1,3)%, title('Cross Peak SCR')
+    fg33=subplot(3,1,3);%, title('Cross Peak SCR')
     [a, b]=max(L_SCR.*ROIsML,[],2); %a2=smooth(a,0.05,'rloess'); 
     [sLS c]=max(a); 
     if dotp==1
@@ -225,7 +227,8 @@ if noF>2
     xlim([0 ns]); a=ylim; ylim([0 a(2)]);
     til3=['Left-Eye Peak 3D SCR Crossection of ' app.Auditorium];
     title(til3);
-    %fg3.Position=[25 120 560 820];
+    fg33.Position=[0.21 0.11 0.61 0.2157];
+    
     saveas(gcf,[app.fileDir app.Auditorium '-3D Left-Eye SCR.png'])
 end
 
