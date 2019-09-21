@@ -16,9 +16,9 @@ function Screen_Uniformity(app)
 
     imrot=2; % 0= No, 1=fixed angle, 2=select
 
-    Ro=exist('app.fileDir');
+    ad=app.fileDir; Ro=exist('ad','var');
     if Ro==1
-        fileName=uigetfile(app.fileDir,'*.mat;*.csv','Choose the file you want to process.',fileDir);
+        fileName=uigetfile([app.fileDir '*.mat;*.csv'],'Choose the file you want to process.');
     else
         [fileName,app.fileDir]=uigetfile('*.mat;*.csv','Choose the file you want to process.');
     end
@@ -31,8 +31,9 @@ function Screen_Uniformity(app)
     end
 
     datas=datas*n2f; %data=data.';
-    if exist('app.MSG')==0; nj=1; else, nj=length(app.MSG); end
-    app.MSG{nj+1}= sprintf('\n Analized File: %s %s \n',app.fileDir,fileName);
+    if exist('app.MSG','var')==0; nj=1; else, nj=length(app.MSG); end
+    %app.MSG{nj+1}= sprintf('\n Analized File: %s %s \n',app.fileDir,fileName);
+    app.MSG{nj+1}= sprintf('\n Analized File: %s \n',fileName);
  
 
     if imrot==1 %use secified rotating angle
