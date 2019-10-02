@@ -31,6 +31,8 @@ if isempty(app.file2D)==0
 
     figure(1)
     imagesc(B_2D); colormap 'jet'
+%     [a1 a2]=size(datas); ah=round(a1/10); av=round(a2/10); a1=round(a1/2); a2=round(a2/2);
+%     mb=mean2(datas(a1-ah:a1+ah,a2-av:a2+av));caxis([0 mb]);
     title('Click the Up-Left and Bottom-Right points for 2D ROI select');
     [x,y]=ginput(2); x=round(x); y=round(y); ROI=[min(y); max(y); min(x); max(x)];
 
@@ -143,7 +145,7 @@ end
 
 
 %% DRAWING - FIGURE 1.
-fg1=figure(1); clf; fg1.Position=[560 528 560 420];
+fg1=figure(1); clf; fg1.Position=[560 415 560 420];
 colormap 'parula'
 % h=fspecial('gaussian',sigma,sigma);
 % dataFiltered=imfilter(B_2D,h,'replicate','same','conv');
@@ -163,7 +165,7 @@ imagesc(app.FigAxis,B_2D); %hold on
 %% DRAWING - FIGURE 2.
 noF=4;
 if noF>2
-    fg2=figure(2); fg2.Position=[1120 120 560 820];
+    fg2=figure(2); fg2.Position=[1120 40 560 820];
     fg21=subplot(3,1,1);
     imagesc(R_Bright); hold on
     sRB=max(max(R_Bright.*ROIsMR)); s=round(sRB,1);
@@ -198,7 +200,7 @@ if noF>2
     saveas(gcf,[app.fileDir app.Auditorium '-3D Right-Eye SCR.png'])
 
  %%   DRAWING - FIGURE 3.
-    fg3=figure(3); fg3.Position=[25 120 560 820];
+    fg3=figure(3); fg3.Position=[25 40 560 820];
     subplot(3,1,1)
     imagesc(L_Bright); hold on; %colormap 'jet';
     sLB=max(max(L_Bright.*ROIsML)); s=round(sLB,1);

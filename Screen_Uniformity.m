@@ -51,7 +51,10 @@ function Screen_Uniformity(app)
     if roi==1  %%%%%%%%%%<<< roi control   >>>
         figure(4)
         %imagesc(data,autoScale(0.02, 0.98, data)); colormap gray;
-        imagesc(datas);    
+        imagesc(datas);
+        [a1 a2]=size(datas); ah=round(a1/10); av=round(a2/10); a1=round(a1/2); a2=round(a2/2);
+        mb=mean2(datas(a1-ah:a1+ah,a2-av:a2+av))*1.25;
+        caxis([0 mb]);
         title('Click the Up-Left and Bottom-Righ points for ROI secect');
         [x,y]=ginput(2); x=round(x); y=round(y);
     else
