@@ -94,7 +94,7 @@ function Screen_Uniformity(app)
     imagesc(dataFiltered); colormap 'jet', hold on
     [C,h]=contour(dataFiltered,'ShowText','on','LineColor',[0.9 0.9 0.9],'LabelSpacing',300); clabel(C,h); hold off
     axis('equal'); title('System Brightness Map')
-    if sfig==1; saveas(gcf,[app.fileDir fileName(1:end-4) ' System Brightness Map.png']); end
+    saveas(gcf,[app.fileDir fileName(1:end-4) ' System Brightness Map.png']);
     %% Uniformity caculation
     data2=datas./dataFiltered;
     data2=data2/mean2(data2);
@@ -167,7 +167,7 @@ function Screen_Uniformity(app)
      end
 
      if scn>1; legend('-50 Position','Corss line','+50 Position'); end
-     if sfig==1; saveas(gcf,[app.fileDir fileName(1:end-4) ' Uniformity Raw Data.png']); end
+     saveas(gcf,[app.fileDir fileName(1:end-4) ' Uniformity Raw Data.png']);
 
     %% Analized Figure 
     figure(6)
@@ -208,6 +208,6 @@ function Screen_Uniformity(app)
      end
 
      if scn>1; legend('-50 Position','Corss line','+50 Position'); end
-     if sfig==1; saveas(gcf,[app.fileDir fileName(1:end-4) ' Enhanced Gaussian filtered Uniformity.png']); end
+     saveas(gcf,[app.fileDir fileName(1:end-4) ' Enhanced Gaussian filtered Uniformity.png']);
  
 end
